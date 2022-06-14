@@ -1,4 +1,3 @@
-//const logfunction2 = require('./login2.js');
 const logfunction3 = require('./login3.js');
 const home = require('./home.js');
 const auth = require("./authorization.js");                  //middleware
@@ -9,11 +8,9 @@ require("dotenv").config();
 const cookieParser = require('cookie-parser')
 
 
+const PORT = process.env.API_PORT || 5000;
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-
-var PORT = process.env.API_PORT || 5000;
-
-var urlencodedParser = bodyParser.urlencoded({ extended: false });
 const app = express()
 
 app.use(cookieParser());
@@ -25,9 +22,8 @@ app.use(cookieParser());
     });
 
 
-    app.post('/login',urlencodedParser,logfunction3);
+    app.post('/login',urlencodedParser,logfunction3);                   //login page 
+ 
+    app.get('/home',auth,home);                                         //home page - success after, JWT check pass
 
-    app.get('/home',auth,home);
-
-//logfunction('test','test1');
 

@@ -24,7 +24,7 @@ function encryption_f(plain_text){
     const message_in_transit = {cipher_text,one_time_code};
 
     return message_in_transit;
-};
+}
 
 
 //encrpted_msg = encryption_f('2CmDxHCEL');
@@ -41,11 +41,9 @@ function decryption_f(message){
     let decoded_message = nacl.box.open.after(message.cipher_text,message.one_time_code,viktoria_shared_key);
 
     //Get the human readable message
-    let plain_text = nacl.util.encodeUTF8(decoded_message)
+    return (nacl.util.encodeUTF8(decoded_message))
 
-    //return the message
-    return plain_text;
-};
+}
 
 //decrypted_msg = decryption_f(encrpted_msg);
 //console.log(decrypted_msg);

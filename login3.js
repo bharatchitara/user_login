@@ -20,7 +20,7 @@ const cookieParser = require('cookie-parser')
 
 // });
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
     host : '127.0.0.1',
     port: '3306',
     user : 'root',
@@ -41,8 +41,8 @@ connection.connect(function(err) {
 async function login(req,response) {    
     //console.log("Hello ------------------",res.body)                                                         //login function
     response.status(200);
-    username = req.body.username
-    password = req.body.password
+    var username = req.body.username
+    var password = req.body.password
 
     if(!(username && password)){                                                           //check for username and password both are provided
         res.status(500).send('Please enter username and password');
