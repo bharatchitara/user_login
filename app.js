@@ -12,6 +12,7 @@ const PORT = process.env.API_PORT || 5000;
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 const app = express()
+app.disable("x-powered-by");
 
 app.use(cookieParser());
 
