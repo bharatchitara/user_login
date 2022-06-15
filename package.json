@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "bcrypt": "^5.0.1",
+    "eslint": "^8.17.0",
     "hashlib": "^1.0.1"
   },
   "dependencies": {

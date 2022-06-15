@@ -9,7 +9,8 @@ const { stringify } = require('qs');
 const { query } = require('express');
 const store = require('store2');
 const { resolve } = require('path');
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const res = require('express/lib/response');
 
 
 // var connection = mysql.createConnection({
@@ -38,14 +39,15 @@ connection.connect(function(err) {
   });
 
 
-async function login(req,response) {    
-    //console.log("Hello ------------------",res.body)                                                         //login function
+async function login(req,response) {                                                          //login function
+
+                                        
     response.status(200);
     var username = req.body.username
     var password = req.body.password
 
     if(!(username && password)){                                                           //check for username and password both are provided
-        res.status(500).send('Please enter username and password');
+        response.status(500).send('Please enter username and password');
     }
 
     var flag_user_exist = 0 ;
@@ -74,7 +76,6 @@ async function login(req,response) {
         })
     })
 
-    //console.log(output.msg[0].password);
 
     db_password = output.msg[0].password;
     console.log(output.msg);
@@ -84,18 +85,22 @@ async function login(req,response) {
     }
 
     verify_password = hashing.verify_password(password,db_password);
-
+    if(verify_password == false){
+        throw err;
+    }
 }
 
     catch
     {
         var message = [
             {
-            "message": "service can't be reached"
+            "success": false,
+            "message": "Login failed"
         }
         ]
 
-        response.status(302).json(message);
+        response.clearCookie('JWT_token');
+        response.status(401).json(message);
         return;
 
     }
@@ -113,7 +118,8 @@ async function login(req,response) {
                                                                                                 //secret
                 {
                   expiresIn: "600s",
-                }
+                
+            }
             );
 
 
@@ -126,10 +132,11 @@ async function login(req,response) {
             ]
 
             
-            response.cookie(`JWT_token`,token);                                                     //saving the token in cookies
+            response.cookie('JWT_token',token);                                                     //saving the token in cookies
 
             var message = [                                                                        //display message - for postman
             {
+                "success": true,
                 "message": "Login successfull."
             }
         ]
@@ -144,11 +151,12 @@ async function login(req,response) {
 
             message = [
                 {
+                "success": false,
                 "message": "Login failed", 
                 }
             ]
-
-            response.status(302).json(message);
+            response.clearCookie('JWT_token');
+            response.status(403).json(message);
         }
     }
 
@@ -156,11 +164,12 @@ async function login(req,response) {
 
         message = [
             {
-            "message": "User not found", 
+            "success": false,
+            "message": "login failed", 
             }
         ]
-
-        response.status(302).json(message);
+        response.clearCookie('JWT_token');
+        response.status(401).json(message);
     }      
 
                                                                                                 // if true -> then hashed password check is success 

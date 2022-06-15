@@ -19,9 +19,9 @@ function verify_password(user_given_password,dbstored_password){                
 
 
 
-//console.log(hash_password('2CmDxHCEL'))
+//console.log(hash_password('RV90XO'))
 
-//console.log(verify_password('2CmDxHCEL','$2b$10$ZKl.1vZK.6Sxbvz9/5FvQ.N78gXYEIZMAuAQBUqRoCyKB0CgObfNW'));
+//console.log(verify_password('RV90XO','$2b$10$SbutzzlmRp0.TV/1rqqyneuXV9TeOMN7jFsAoZbc0hLN2bsG8CjHi'));
 
 module.exports.hash_password = hash_password;
 module.exports.verify_password  = verify_password;
