@@ -1,11 +1,15 @@
 const nacl = require('tweetnacl');
 nacl.util = require('tweetnacl-util');
 
+// import nacl from 'tweetnacl';
+// import util from 'tweetnacl-util';
+
+
 const david = nacl.box.keyPair();
 const viktoria = nacl.box.keyPair();
 
 
-function encryption_f(plain_text){
+ function encryption_f(plain_text){
     //David computes a one time shared key
     const david_shared_key = nacl.box.before(viktoria.publicKey,david.secretKey);
 
@@ -33,7 +37,7 @@ function encryption_f(plain_text){
 
 
 
-function decryption_f(message){
+ function decryption_f(message){
     //Getting Viktoria's shared key
     const viktoria_shared_key = nacl.box.before(david.publicKey,viktoria.secretKey);
 

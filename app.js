@@ -1,6 +1,17 @@
 const logfunction3 = require('./login3.js');
 const home = require('./home.js');
-const auth = require("./authorization.js");                  //middleware
+const auth = require("./authorization.js");   
+const logout = require('./logout.js');               //middleware
+
+// import * as f_logout from './logout.js';
+// import * as logfunction3 from './login3.js';
+// import * as home from './home.js';
+// import * as auth from './authorization.js';
+// import express from 'express';
+// import bodyParser from 'body-parser';
+// import { config } from 'dotenv';
+// import cookieParser from 'cookie-parser';
+
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -23,8 +34,10 @@ app.use(cookieParser());
     });
 
 
-    app.post('/login',urlencodedParser,logfunction3);                   //login page 
+    app.post('/login',urlencodedParser,logfunction3);                             //login page 
  
     app.get('/home',auth,home);                                         //home page - success after, JWT check pass
+
+    app.post('/logout',urlencodedParser,logout);                                 //logout page
 
 

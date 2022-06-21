@@ -10,37 +10,46 @@ const { query } = require('express');
 const store = require('store2');
 const { resolve } = require('path');
 const cookieParser = require('cookie-parser');
+const session = require('./new_session.js');
+const logout = require('./logout.js');
+
+
 const res = require('express/lib/response');
+var crypto = require('crypto');
 
 
-// var connection = mysql.createConnection({
-//     host : 'reusable-modules.ckphk93ofay7.us-east-1.rds.amazonaws.com',
-//     user : 'admin',
-//     password : 'Rmodules$2022#',
-//     database : 'micro_systems'
 
-// });
 
-const connection = mysql.createConnection({
-    host : process.env.MYSQL_HOST,
-    port: process.env.MYSQL_PORT,
-    user : process.env.MYSQL_USER,
-    password : process.env.MYSQL_PASSWORD,
-    database : process.env.MYSQL_DB
+var connection = mysql.createConnection({
+    host : 'reusable-modules.ckphk93ofay7.us-east-1.rds.amazonaws.com',
+    user : 'admin',
+    password : 'Rmodules$2022#',
+    database : 'micro_systems'
 
 });
 
-connection.connect(function(err) {
-    if (err) {
-      return console.error('error: ' + err.message);
-    }
-  
-    console.log('Connected to the MySQL server.');
-  });
+// const connection = mysql.createConnection({
+//     host : process.env.MYSQL_HOST,
+//     port: process.env.MYSQL_PORT,
+//     user : process.env.MYSQL_USER,
+//     password : process.env.MYSQL_PASSWORD,
+//     database : process.env.MYSQL_DB
+
+// });
 
 
 async function login(req,response) {                                                          //login function
 
+    //..............check connection 
+    connection.connect(function(err) {    
+        if (err) {
+          //return console.error('error: ' + err.message);
+          response.status(500).json("DB connection failed");
+          return;
+        }
+      
+        console.log('Connected to the MySQL server.');
+    });
                                         
     response.status(200);
     var username = req.body.username
@@ -54,14 +63,16 @@ async function login(req,response) {                                            
     var usr_index = 0;
     //length_users_object = Object.keys(users).length;
 
-    u_name= '"'+username+'"';
+    var u_name= username;
 
     //var query_result = {};
     var db_password = '';
+
+    var output;
     
     try{
 
-    const sql = `select * from users2 where email=${u_name}`;
+    const sql = `select * from users where email="${u_name}"`;
     
     const result = await new Promise((resolve,reject) => {
         connection.query(sql,(err,res)=> {
@@ -101,6 +112,7 @@ async function login(req,response) {                                            
 
         response.clearCookie('JWT_token');
         response.status(401).json(message);
+       // connection.end();
         return;
 
     }
@@ -115,24 +127,35 @@ async function login(req,response) {                                            
              const token = jwt.sign(                                                             //jwt token creation and storing in user table
                 {user_data: get_user_name,get_user_email},                                      // payload
                 process.env.TOKEN_KEY,                                                           
-                                                                                                //secret
                 {
-                  expiresIn: "600s",
-                
-            }
+                  expiresIn: "30m",
+                }
             );
 
+            const refreshToken = jwt.sign(
+                {user_data: get_user_name,get_user_email}, 
+                process.env.REFRESH_TOKEN_KEY, 
+                { 
+                    expiresIn: "60d",
+                }
+                );
 
+            //console.log("from login"+refreshToken);
             var payload= [                                                                       //response payload
                 {
                 "name":get_user_name, 
                 "email":get_user_email,
-                "token":token 
+                "token":refreshToken 
                 }
             ]
 
             
-            response.cookie('JWT_token',token);                                                     //saving the token in cookies
+            response.cookie('userid',get_user_email);                                                     //saving the userid in cookies
+           // response.cookie('accesstoken',token);                                                        //saving the token in cookies
+           
+            const inserttoken = await session.insertSession(u_name,refreshToken);
+            console.log(inserttoken);
+
 
             var message = [                                                                        //display message - for postman
             {
@@ -155,7 +178,7 @@ async function login(req,response) {                                            
                 "message": "Login failed", 
                 }
             ]
-            response.clearCookie('JWT_token');
+            response.clearCookie('userid');
             response.status(403).json(message);
         }
     }
@@ -172,8 +195,10 @@ async function login(req,response) {                                            
         response.status(401).json(message);
     }      
 
-                                                                                                // if true -> then hashed password check is success 
+  
+//connection.end();                                                                           //closing the connection
 }
+
 
 module.exports = login;
 
